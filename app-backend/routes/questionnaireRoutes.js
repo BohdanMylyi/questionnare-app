@@ -1,21 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const Questionnaire = require("../models/Questionnaire");
+const questionnaireController = require("../controllers/questionnareControllers");
 
-router.get("/", async (req, res) => {
-    const questionnaires = await Questionnaire.find();
-    res.json(questionnaires);
-});
-
-router.post("/", async (req, res) => {
-    const newQuestionnaire = new Questionnaire(req.body);
-    await newQuestionnaire.save();
-    res.status(201).json(newQuestionnaire);
-});
-
-router.delete("/:id", async (req, res) => {
-    await Questionnaire.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
-});
+router.get("/", questionnaireController.getAllQuestionnaires);
+router.get("/:id", questionnaireController.getQuestionnaireById);
+router.post("/", questionnaireController.createQuestionnaire);
+router.put("/:id", questionnaireController.updateQuestionnaire);
+router.delete("/:id", questionnaireController.deleteQuestionnaire);
 
 module.exports = router;
