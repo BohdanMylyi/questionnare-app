@@ -30,6 +30,7 @@ export default function CreateQuestionnaire() {
   };
 
   const handleSubmit = () => {
+    console.log("Submitting questionnaire:", questions);
     axios
       .post("http://localhost:5000/api/questionnaires", {
         name,
@@ -40,54 +41,83 @@ export default function CreateQuestionnaire() {
   };
 
   return (
-    <div>
-      <h1>Create Quiz</h1>
-      <input
-        type="text"
-        placeholder="Quiz name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      {questions.map((q, qIndex) => (
-        <div key={qIndex}>
+    <>
+      <div className="flex flex-row justify-between m-4">
+        <h1 className="text-xl font-bold">Create Quiz</h1>
+      </div>
+      <div className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 w-[300px] mx-auto mt-20">
+        <div className="flex flex-col items-center gap-2">
           <input
             type="text"
-            placeholder="Question"
-            value={q.text}
-            onChange={(e) => updateQuestion(qIndex, "text", e.target.value)}
+            placeholder="Quiz name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="font-bold bg-[#fff] border-2 w-[200px]"
           />
-          <select
-            value={q.type}
-            onChange={(e) => updateQuestion(qIndex, "type", e.target.value)}
-          >
-            <option value="text">Text</option>
-            <option value="single">Single choice</option>
-            <option value="multiple">Multiple choice</option>
-          </select>
-          {q.type !== "text" && (
-            <div>
-              {q.choices.map((c, cIndex) => (
-                <input
-                  key={cIndex}
-                  type="text"
-                  placeholder="Choice"
-                  value={c}
-                  onChange={(e) => updateChoice(qIndex, cIndex, e.target.value)}
-                />
-              ))}
-              <button onClick={() => addChoice(qIndex)}>Add choice</button>
+          <input
+            type="text"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="font-bold bg-[#fff] border-2 w-[200px]"
+          />
+          {questions.map((q, qIndex) => (
+            <div key={qIndex}>
+              <input
+                type="text"
+                placeholder="Question"
+                value={q.text}
+                onChange={(e) => updateQuestion(qIndex, "text", e.target.value)}
+                className="text-xl font-bold bg-[#fff] border-2"
+              />
+              <select
+                value={q.type}
+                onChange={(e) => updateQuestion(qIndex, "type", e.target.value)}
+                className="text-xl font-bold bg-[#fff] border-2"
+              >
+                <option value="text">Text</option>
+                <option value="single">Single choice</option>
+                <option value="multiple">Multiple choice</option>
+              </select>
+              {q.type !== "text" && (
+                <div>
+                  {q.choices.map((c, cIndex) => (
+                    <input
+                      key={cIndex}
+                      type="text"
+                      placeholder="Choice"
+                      value={c}
+                      onChange={(e) =>
+                        updateChoice(qIndex, cIndex, e.target.value)
+                      }
+                    />
+                  ))}
+                  <button
+                    className="border-2 px-5 rounded-xl bg-[#fff]"
+                    onClick={() => addChoice(qIndex)}
+                  >
+                    Add choice
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          ))}
+          <div className="flex flex-row">
+            <button
+              className="border-2 px-5 rounded-xl bg-[#fff]"
+              onClick={addQuestion}
+            >
+              Add question
+            </button>
+            <button
+              className="border-2 px-5 rounded-xl bg-[#fff]"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
         </div>
-      ))}
-      <button onClick={addQuestion}>Add question</button>
-      <button onClick={handleSubmit}>Submit</button>
-    </div>
+      </div>
+    </>
   );
 }

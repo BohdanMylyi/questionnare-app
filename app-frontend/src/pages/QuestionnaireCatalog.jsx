@@ -20,7 +20,7 @@ export default function QuestionnaireCatalog() {
       const res = await axios.get("http://localhost:5000/api/questionnaires");
       setQuestionnaires(res.data);
       console.log(res.data);
-      setError(""); // Clear any previous error
+      setError("");
     } catch (error) {
       setError("Error fetching questionnaires");
       console.error("Error fetching questionnaires:", error);
@@ -84,19 +84,19 @@ export default function QuestionnaireCatalog() {
   return (
     <div className="h-full">
       <div className="flex flex-row justify-between m-4">
-        <h1>Quiz Catalog</h1>
+        <h1 className="text-xl font-bold">Quiz Catalog</h1>
         <Link to={"/create"}>
           <h2>Create Quiz</h2>
         </Link>
       </div>
       {loading && <p>Loading...</p>}
-      <div className="w-[80%] h-full mx-auto">
+      <div className="w-[80%] h-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-hidden">
         {questionnaires.map((q) => (
           <div
             key={q._id}
-            className="card w-96 bg-base-100 card-xs shadow-md rounded-xl p-5 border-2"
+            className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 "
           >
-            <div className="card-body">
+            <div className="flex flex-col gap-2">
               {editingQuestionnaire === q._id ? (
                 <>
                   <input
@@ -104,41 +104,55 @@ export default function QuestionnaireCatalog() {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Quiz Name"
-                    className="card-title"
+                    className="text-xl font-bold bg-[#fff] border-2"
                   />
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
                     placeholder="Quiz Description"
+                    className="bg-[#fff] border-2"
                   />
-                  <button className="btn btn-primary" onClick={handleSave}>
-                    Save
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setEditingQuestionnaire(null)}
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex flex-row justify-between mt-4">
+                    <button
+                      className="border-2 px-5 rounded-xl bg-[#fff]"
+                      onClick={handleSave}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="border-2 px-5 rounded-xl bg-[#fff]"
+                      onClick={() => setEditingQuestionnaire(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </>
               ) : (
-                <>
-                  <h3>{q.name}</h3>
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-xl font-bold">{q.name}</h3>
                   <p>{q.description}</p>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleEdit(q)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleDelete(q._id)}
-                  >
-                    Delete
-                  </button>
-                </>
+                  <p>{q.completions}</p>
+                  <div className="flex flex-row justify-between mt-4">
+                    <button
+                      className="border-2 px-5 rounded-xl bg-[#fff]"
+                      onClick={() => handleEdit(q)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="border-2 px-5 rounded-xl bg-[#fff]"
+                      onClick={() => handleDelete(q._id)}
+                    >
+                      Delete
+                    </button>
+                    <Link to={`/quiz/${q._id}`}>
+                      <button className="border-2 px-5 rounded-xl bg-[#fff]">
+                        Run
+                      </button>
+                    </Link>
+                  </div>
+                </div>
               )}
             </div>
           </div>
