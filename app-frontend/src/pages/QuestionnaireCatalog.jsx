@@ -82,11 +82,11 @@ export default function QuestionnaireCatalog() {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full ">
       <div className="flex flex-row justify-between m-4">
         <h1 className="text-xl font-bold">Quiz Catalog</h1>
         <Link to={"/create"}>
-          <h2>Create Quiz</h2>
+          <h2 className="font-bold">Create Quiz</h2>
         </Link>
       </div>
       {loading && <p>Loading...</p>}
@@ -99,20 +99,26 @@ export default function QuestionnaireCatalog() {
             <div className="flex flex-col gap-2">
               {editingQuestionnaire === q._id ? (
                 <>
-                  <input
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Quiz Name"
-                    className="text-xl font-bold bg-[#fff] border-2"
-                  />
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Quiz Description"
-                    className="bg-[#fff] border-2"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-bold">Name:</h3>
+                    <input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Quiz Name"
+                      className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-bold">Description:</h3>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Quiz Description"
+                      className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
+                    />
+                  </div>
                   <div className="flex flex-row justify-between mt-4">
                     <button
                       className="border-2 px-5 rounded-xl bg-[#fff]"
@@ -132,7 +138,9 @@ export default function QuestionnaireCatalog() {
                 <div className="flex flex-col gap-2">
                   <h3 className="text-xl font-bold">{q.name}</h3>
                   <p>{q.description}</p>
-                  <p>{q.completions}</p>
+                  <p className="text-blue-500">
+                    Questions: {q.questions.length}
+                  </p>
                   <div className="flex flex-row justify-between mt-4">
                     <button
                       className="border-2 px-5 rounded-xl bg-[#fff]"

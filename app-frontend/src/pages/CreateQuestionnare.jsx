@@ -1,11 +1,16 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 export default function CreateQuestionnaire() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const addQuestion = () => {
     setQuestions([...questions, { text: "", type: "text", choices: [] }]);
@@ -29,12 +34,12 @@ export default function CreateQuestionnaire() {
     setQuestions(updatedQuestions);
   };
 
-  const handleSubmit = () => {
+  const onSubmit = (data) => {
     console.log("Submitting questionnaire:", questions);
     axios
       .post("http://localhost:5000/api/questionnaires", {
-        name,
-        description,
+        name: data.quizName,
+        description: data.description,
         questions,
       })
       .then(() => alert("Quiz created!"));
@@ -43,80 +48,122 @@ export default function CreateQuestionnaire() {
   return (
     <>
       <div className="flex flex-row justify-between m-4">
-        <h1 className="text-xl font-bold">Create Quiz</h1>
+        <Link to={"/"}>
+          <h1 className="text-xl font-bold">Create Quiz</h1>
+        </Link>
       </div>
-      <div className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 w-[300px] mx-auto mt-20">
-        <div className="flex flex-col items-center gap-2">
-          <input
-            type="text"
-            placeholder="Quiz name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="font-bold bg-[#fff] border-2 w-[200px]"
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="font-bold bg-[#fff] border-2 w-[200px]"
-          />
-          {questions.map((q, qIndex) => (
-            <div key={qIndex}>
+      <div className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 w-[400px] mx-auto mt-20">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col gap-1">
+              <h3 className="font-bold">Name:</h3>
               <input
                 type="text"
-                placeholder="Question"
-                value={q.text}
-                onChange={(e) => updateQuestion(qIndex, "text", e.target.value)}
-                className="text-xl font-bold bg-[#fff] border-2"
+                placeholder="Quiz name"
+                className="font-bold bg-[#fff] border-2 p-2 rounded-xl"
+                {...register("quizName", {
+                  required: "Name is required!",
+                  maxLength: { value: 10, message: "Max length is 10" },
+                })}
               />
-              <select
-                value={q.type}
-                onChange={(e) => updateQuestion(qIndex, "type", e.target.value)}
-                className="text-xl font-bold bg-[#fff] border-2"
-              >
-                <option value="text">Text</option>
-                <option value="single">Single choice</option>
-                <option value="multiple">Multiple choice</option>
-              </select>
-              {q.type !== "text" && (
-                <div>
-                  {q.choices.map((c, cIndex) => (
-                    <input
-                      key={cIndex}
-                      type="text"
-                      placeholder="Choice"
-                      value={c}
-                      onChange={(e) =>
-                        updateChoice(qIndex, cIndex, e.target.value)
-                      }
-                    />
-                  ))}
-                  <button
-                    className="border-2 px-5 rounded-xl bg-[#fff]"
-                    onClick={() => addChoice(qIndex)}
-                  >
-                    Add choice
-                  </button>
-                </div>
+              {errors.quizName && (
+                <p role="alert" className="text-red-600">
+                  {errors.quizName.message}
+                </p>
               )}
             </div>
-          ))}
-          <div className="flex flex-row">
-            <button
-              className="border-2 px-5 rounded-xl bg-[#fff]"
-              onClick={addQuestion}
-            >
-              Add question
-            </button>
-            <button
-              className="border-2 px-5 rounded-xl bg-[#fff]"
-              onClick={handleSubmit}
-            >
-              Submit
-            </button>
+            <div className="flex flex-col gap-1">
+              <h3 className="font-bold">Description:</h3>
+              <input
+                type="text"
+                placeholder="Description"
+                className="font-bold bg-[#fff] border-2 p-2 rounded-xl"
+                {...register("description", {
+                  required: "Description is required!",
+                  maxLength: { value: 50, message: "Max length is 50" },
+                })}
+              />
+              {errors.description && (
+                <p role="alert" className="text-red-600">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+            {questions.map((q, qIndex) => (
+              <div key={qIndex} className="flex flex-col items-center gap-2">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-bold">Question {qIndex + 1}:</h3>
+                  <h3 className="font-bold">Questions:</h3>
+                  <input
+                    type="text"
+                    placeholder="Question"
+                    className="font-bold bg-[#fff] border-2 p-1 rounded-sm"
+                    {...register("question", {
+                      required: "Question is required!",
+                    })}
+                  />
+                  {errors.question === "required" && (
+                    <p role="error" className="text-red-600">
+                      {errors.question.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-bold">Answer:</h3>
+                  <select
+                    value={q.type}
+                    onChange={(e) =>
+                      updateQuestion(qIndex, "type", e.target.value)
+                    }
+                    className="font-bold bg-[#fff] border-2 p-1 rounded-sm"
+                  >
+                    <option value="text">Text</option>
+                    <option value="single">Single choice</option>
+                    <option value="multiple">Multiple choice</option>
+                  </select>
+                </div>
+                {q.type !== "text" && (
+                  <div>
+                    {q.choices.map((c, cIndex) => (
+                      <div className="flex flex-col my-2">
+                        <input
+                          key={cIndex}
+                          type="text"
+                          placeholder="Choice"
+                          value={c}
+                          onChange={(e) =>
+                            updateChoice(qIndex, cIndex, e.target.value)
+                          }
+                          className="font-bold bg-[#fff] border-2 p-1 rounded-sm"
+                        />
+                      </div>
+                    ))}
+                    <button
+                      className="border-2 px-5 rounded-xl bg-[#fff] mx-auto"
+                      onClick={() => addChoice(qIndex)}
+                    >
+                      Add choice
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+            <div className="flex flex-row gap-2">
+              <button
+                className="border-2 px-5 rounded-xl bg-[#fff]"
+                onClick={addQuestion}
+              >
+                Add question
+              </button>
+              <button
+                className="border-2 px-5 rounded-xl bg-[#fff]"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </>
   );
