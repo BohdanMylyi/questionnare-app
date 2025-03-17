@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import React from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 export default function QuestionnaireCatalog() {
   const [questionnaires, setQuestionnaires] = useState([]);
   const [editingQuestionnaire, setEditingQuestionnaire] = useState(null);
-  const [formData, setFormData] = useState({ name: "", description: "" });
   const [loading, setLoading] = useState(false);
   const [, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm();
 
   useEffect(() => {
     fetchQuestionnaires();
@@ -19,7 +25,6 @@ export default function QuestionnaireCatalog() {
     try {
       const res = await axios.get("http://localhost:5000/api/questionnaires");
       setQuestionnaires(res.data);
-      console.log(res.data);
       setError("");
     } catch (error) {
       setError("Error fetching questionnaires");
@@ -41,18 +46,12 @@ export default function QuestionnaireCatalog() {
 
   const handleEdit = (questionnaire) => {
     setEditingQuestionnaire(questionnaire._id);
-    setFormData({
-      name: questionnaire.name,
-      description: questionnaire.description,
-    });
+    setValue("name", questionnaire.quizName);
+    setValue("description", questionnaire.description);
   };
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSave = async () => {
-    if (!formData.name || !formData.description) {
+  const handleSave = async (data) => {
+    if (!data.name || !data.description) {
       setError("Both fields are required");
       return;
     }
@@ -61,7 +60,7 @@ export default function QuestionnaireCatalog() {
     try {
       const res = await axios.put(
         `http://localhost:5000/api/questionnaires/${editingQuestionnaire}`,
-        formData
+        data
       );
 
       setQuestionnaires((prev) =>
@@ -71,7 +70,6 @@ export default function QuestionnaireCatalog() {
       );
 
       setEditingQuestionnaire(null);
-      setFormData({ name: "", description: "" });
       setError("");
     } catch (error) {
       setError("Error updating questionnaire");
@@ -96,73 +94,89 @@ export default function QuestionnaireCatalog() {
             key={q._id}
             className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 "
           >
-            <div className="flex flex-col gap-2">
-              {editingQuestionnaire === q._id ? (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <h3 className="font-bold">Name:</h3>
-                    <input
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Quiz Name"
-                      className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <h3 className="font-bold">Description:</h3>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      placeholder="Quiz Description"
-                      className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
-                    />
-                  </div>
-                  <div className="flex flex-row justify-between mt-4">
-                    <button
-                      className="border-2 px-5 rounded-xl bg-[#fff]"
-                      onClick={handleSave}
-                    >
-                      Save
-                    </button>
-                    <button
-                      className="border-2 px-5 rounded-xl bg-[#fff]"
-                      onClick={() => setEditingQuestionnaire(null)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-xl font-bold">{q.name}</h3>
-                  <p>{q.description}</p>
-                  <p className="text-blue-500">
-                    Questions: {q.questions.length}
-                  </p>
-                  <div className="flex flex-row justify-between mt-4">
-                    <button
-                      className="border-2 px-5 rounded-xl bg-[#fff]"
-                      onClick={() => handleEdit(q)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="border-2 px-5 rounded-xl bg-[#fff]"
-                      onClick={() => handleDelete(q._id)}
-                    >
-                      Delete
-                    </button>
-                    <Link to={`/quiz/${q._id}`}>
-                      <button className="border-2 px-5 rounded-xl bg-[#fff]">
-                        Run
+            <form onSubmit={handleSubmit(handleSave)}>
+              <div className="flex flex-col gap-2">
+                {editingQuestionnaire === q._id ? (
+                  <>
+                    <div className="flex flex-col gap-1">
+                      <h3 className="font-bold">Name:</h3>
+                      <input
+                        name="name"
+                        placeholder="Quiz Name"
+                        className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
+                        {...register("name", {
+                          required: "Name is required!",
+                          maxLength: { value: 10, message: "Max length is 10" },
+                        })}
+                      />
+                      {errors.name && (
+                        <p role="alert" className="text-red-600">
+                          {errors.name.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <h3 className="font-bold">Description:</h3>
+                      <textarea
+                        name="description"
+                        placeholder="Quiz Description"
+                        className="font-normal bg-[#fff] border-2 p-2 rounded-xl"
+                        {...register("description", {
+                          required: "Description is required!",
+                          maxLength: { value: 50, message: "Max length is 50" },
+                        })}
+                      />
+                      {errors.description && (
+                        <p role="alert" className="text-red-600">
+                          {errors.description.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-row justify-between mt-4">
+                      <button
+                        className="border-2 px-5 rounded-xl bg-[#fff]"
+                        type="submit"
+                      >
+                        Save
                       </button>
-                    </Link>
+                      <button
+                        className="border-2 px-5 rounded-xl bg-[#fff]"
+                        onClick={() => setEditingQuestionnaire(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-xl font-bold">{q.name}</h3>
+                    <p>{q.description}</p>
+                    <p className="text-blue-500">
+                      Questions: {q.questions.length}
+                    </p>
+                    <div className="flex flex-row justify-between mt-4">
+                      <button
+                        className="border-2 px-5 rounded-xl bg-[#fff]"
+                        onClick={() => handleEdit(q)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="border-2 px-5 rounded-xl bg-[#fff]"
+                        onClick={() => handleDelete(q._id)}
+                      >
+                        Delete
+                      </button>
+                      <Link to={`/quiz/${q._id}`}>
+                        <button className="border-2 px-5 rounded-xl bg-[#fff]">
+                          Run
+                        </button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </form>
           </div>
         ))}
       </div>
