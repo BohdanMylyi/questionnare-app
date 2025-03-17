@@ -8,6 +8,7 @@ export default function QuestionnaireCatalog() {
   const [questionnaires, setQuestionnaires] = useState([]);
   const [editingQuestionnaire, setEditingQuestionnaire] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [sortKey, setSortKey] = useState("name");
   const [, setError] = useState("");
   const {
     register,
@@ -33,6 +34,15 @@ export default function QuestionnaireCatalog() {
       setLoading(false);
     }
   };
+
+  const sortedQuestionnaires = [...questionnaires].sort((a, b) => {
+    if (sortKey === "name") {
+      return a.name.localeCompare(b.name);
+    } else if (sortKey === "questions") {
+      return b.questions.length - a.questions.length;
+    }
+    return 0;
+  });
 
   const handleDelete = async (id) => {
     try {
@@ -87,9 +97,19 @@ export default function QuestionnaireCatalog() {
           <h2 className="font-bold">Create Quiz</h2>
         </Link>
       </div>
+      <div className="flex justify-center m-4">
+        <select
+          className="border-2 p-2 rounded-xl"
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value)}
+        >
+          <option value="name">Sort by Name</option>
+          <option value="questions">Sort by Number of Questions</option>
+        </select>
+      </div>
       {loading && <p>Loading...</p>}
       <div className="w-[80%] h-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-hidden">
-        {questionnaires.map((q) => (
+        {sortedQuestionnaires.map((q) => (
           <div
             key={q._id}
             className="card bg-[#FDFAF6] card-xs shadow-md rounded-xl p-5 border-2 "
@@ -167,11 +187,6 @@ export default function QuestionnaireCatalog() {
                       >
                         Delete
                       </button>
-                      <Link to={`/quiz/${q._id}`}>
-                        <button className="border-2 px-5 rounded-xl bg-[#fff]">
-                          Run
-                        </button>
-                      </Link>
                     </div>
                   </div>
                 )}
