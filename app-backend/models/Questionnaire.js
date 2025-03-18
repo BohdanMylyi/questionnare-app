@@ -8,9 +8,14 @@ const QuestionnaireSchema = new mongoose.Schema({
       text: String,
       type: { type: String, enum: ["text", "single", "multiple"] },
       choices: [String],
+      quantity: { type: Number, default: 0 },
     },
   ],
-  completions: { type: Number, default: 0 },
+  questionsNumber: { type: Number, default: 0 },
+  order: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Questionnaire", QuestionnaireSchema);

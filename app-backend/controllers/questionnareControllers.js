@@ -21,11 +21,11 @@ exports.getQuestionnaireById = async (req, res) => {
 
 exports.createQuestionnaire = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, questions } = req.body;
     const newQuestionnaire = new Questionnaire({
       name,
       description,
-      questions: [],
+      questions,
     });
     await newQuestionnaire.save();
     res.status(201).json(newQuestionnaire);
@@ -60,5 +60,50 @@ exports.deleteQuestionnaire = async (req, res) => {
     res.json({ message: "Deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.submitAnswers = async (req, res) => {
+  const { questionnaireId, answers, timeTaken } = req.body;
+  try {
+    const response = await ResponseModel.create({
+      questionnaireId,
+      answers,
+      timeTaken,
+    });
+    res.status(201).json(response);
+  } catch (error) {
+    res.status(500).json({ error: "Error saving responses" });
+  }
+};
+
+exports.updateOrder = async (req, res) => {
+  const { order } = req.body;
+
+  if (!order || order.length === 0) {
+    return res.status(400).json({ message: "Order is required" });
+  }
+
+  try {
+    for (let i = 0; i < order.length; i++) {
+      const questionnaireId = order[i];
+      const updatedQuestionnaire = await Questionnaire.findByIdAndUpdate(
+        questionnaireId,
+        { order: i },
+        { new: true }
+      );
+      if (!updatedQuestionnaire) {
+        return res
+          .status(404)
+          .json({
+            message: `Questionnaire with id ${questionnaireId} not found`,
+          });
+      }
+    }
+
+    res.status(200).json({ message: "Order updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating order" });
   }
 };

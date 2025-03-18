@@ -7,5 +7,7 @@ router.get("/:id", questionnaireController.getQuestionnaireById);
 router.post("/", questionnaireController.createQuestionnaire);
 router.put("/:id", questionnaireController.updateQuestionnaire);
 router.delete("/:id", questionnaireController.deleteQuestionnaire);
+router.post("/api/quiz-responses", questionnaireController.submitAnswers);
+router.put("/update-order", questionnaireController.updateOrder);
 
 module.exports = router;
