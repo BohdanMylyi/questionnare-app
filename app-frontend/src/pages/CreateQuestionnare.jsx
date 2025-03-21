@@ -37,7 +37,7 @@ export default function CreateQuestionnaire() {
   const onSubmit = (data) => {
     console.log("Submitting questionnaire:", questions);
     axios
-      .post("http://localhost:5000/api/questionnaires", {
+      .post("https://questionnare-app-1.onrender.com/api/questionnaires", {
         name: data.quizName,
         description: data.description,
         questions,

@@ -25,7 +25,9 @@ export default function QuestionnaireCatalog() {
   const fetchQuestionnaires = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/questionnaires");
+      const res = await axios.get(
+        "https://questionnare-app-1.onrender.com/api/questionnaires"
+      );
       setQuestionnaires(res.data);
       setError("");
     } catch (error) {
@@ -47,7 +49,9 @@ export default function QuestionnaireCatalog() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/questionnaires/${id}`);
+      await axios.delete(
+        `https://questionnare-app-1.onrender.com/api/questionnaires/${id}`
+      );
       setQuestionnaires((prev) => prev.filter((q) => q._id !== id));
     } catch (error) {
       setError("Error deleting questionnaire");
@@ -70,7 +74,7 @@ export default function QuestionnaireCatalog() {
     setLoading(true);
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/questionnaires/${editingQuestionnaire}`,
+        `https://questionnare-app-1.onrender.com/api/questionnaires/${editingQuestionnaire}`,
         data
       );
 
@@ -100,7 +104,7 @@ export default function QuestionnaireCatalog() {
 
     try {
       const res = await axios.put(
-        "http://localhost:5000/api/questionnaires",
+        "https://questionnare-app-1.onrender.com/api/questionnaires",
         {
           order: reorderedQuestionnaires.map((q) => q._id),
         }
